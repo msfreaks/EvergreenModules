@@ -5,7 +5,12 @@
 *  Add -Scope parameter
 *  Check for Elevation
 
-## 2101.2
+## 2101.3 (general release)
+
+*  Added ShouldProcess logic
+*  Implemented Codecy Analysis recommendations
+
+## 2101.2 (internal release)
 
 *  Added Preview version logic
 *  Added parameter 'KeepVersions'

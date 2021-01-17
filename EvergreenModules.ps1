@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 2101.2
+.VERSION 2101.3
 
 .GUID 0f309416-1337-43d0-93dd-f44988136fe8
 
@@ -8,7 +8,7 @@
 
 .COMPANYNAME IT-WorXX
 
-.TAGS Modules  Evergreen Automation
+.TAGS Modules Evergreen Automation
 
 .LICENSEURI https://github.com/msfreaks/EvergreenModules/blob/main/LICENSE
 
@@ -75,7 +75,7 @@
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory = $false, Position = 0)]
     [String[]] $Include = @(),
@@ -98,7 +98,7 @@ Write-Verbose -Message ('ReportOnly:     {0}' -f $ReportOnly)
 #region Functions
 
 function Update-PowerShellModule {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [PSCustomObject[]] $Module,
         [PSCustomObject] $ModuleOnline,
@@ -110,21 +110,26 @@ function Update-PowerShellModule {
     Write-Verbose -Message ('Online version: {0}' -f $ModuleOnline.Version)
     Write-Verbose -Message ('KeepVersions:   {0}' -f $KeepVersions)
     Write-Verbose -Message ('ReportOnly:     {0}' -f $ReportOnly)
+
     $isPreview = $null
     if ($Module[0].Version -like '*-preview') { $isPreview = ' (preview)' }
 
     if ($Module[0].Version -eq $ModuleOnline.Version) {
 
-        Write-Host ('{0}{1}: Newest version already installed ({2}).' -f $Module[0].Name, $isPreview, $Module[0].Version) -ForegroundColor Green
+        Write-Output -InputObject ('{0}{1}: Newest version already installed ({2}).' -f $Module[0].Name, $isPreview, $Module[0].Version)
     } else {
-        Write-Host ('{0}{1}: Newer version available: {2} (Current version: {3}).' -f $Module[0].Name, $isPreview, $ModuleOnline.Version, $Module[0].Version) -ForegroundColor Cyan
+        Write-Output -InputObject ('{0}{1}: Newer version available: {2} (Current version: {3}).' -f $Module[0].Name, $isPreview, $ModuleOnline.Version, $Module[0].Version)
         if (-not $ReportOnly) {
-            Write-Host ('{0}{1}: Updating to version {2}' -f $Module[0].Name, $isPreview, $ModuleOnline.Version) -ForegroundColor Cyan
+            Write-Output -InputObject ('{0}{1}: Updating to version {2}' -f $Module[0].Name, $isPreview, $ModuleOnline.Version)
             try {
                 if ($isPreview) {
-                    Update-Module -Name $Module[0].Name -AllowPrerelease -Force
+                    if ($PSCmdlet.ShouldProcess(('{0}{1}' -f $Module[0].Name, $isPreview), ('Updating to {0}' -f $ModuleOnline.Version))) {
+                        Update-Module -Name $Module[0].Name -AllowPrerelease -WhatIf:$WhatIfPreference
+                    }
                 } else {
-                    Update-Module -Name $Module[0].Name -Force
+                    if ($PSCmdlet.ShouldProcess($Module[0].Name, ('Updating to {0}' -f $ModuleOnline.Version))) {
+                        Update-Module -Name $Module[0].Name -WhatIf:$WhatIfPreference
+                    }
                 }
             }
             catch {
@@ -137,9 +142,11 @@ function Update-PowerShellModule {
     if (-not $ReportOnly -and -not $KeepVersions) {
         $Module | Where-Object { $_.Version -ne $ModuleOnline.Version } | ForEach-Object {
             $current = $_
-            Write-Host ('{0}: Uninstalling version {1}' -f $current.Name, $current.Version) -ForegroundColor Cyan
+            Write-Output -InputObject ('{0}: Uninstalling version {1}' -f $current.Name, $current.Version)
             try {
-                $current | Uninstall-Module -Force
+                if ($PSCmdlet.ShouldProcess($Module[0].Name, ('Uninstalling {0}' -f $current.Version))) {
+                    $current | Uninstall-Module -WhatIf:$WhatIfPreference
+                }
             }
             catch {
                 Write-Warning -Message ('{0}: Failed to uninstall {1}.' -f $current.Name, $current.Version)
