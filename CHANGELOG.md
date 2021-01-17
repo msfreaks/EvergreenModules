@@ -8,7 +8,7 @@
 ## 2101.3 (general release)
 
 *  Added ShouldProcess logic
-*  Implemented Codecy Analysis recommendations
+*  Implemented Codacy Analysis recommendations
 
 ## 2101.2 (internal release)
 
