@@ -51,29 +51,75 @@ PARAMETERS
         If more than one module name need to be included, pass in an array of strings.
         Supports '*' wildcard.
 
+        Required?                    false
+        Position?                    1
+        Default value                @()
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
     -Exclude <String[]>
         Optionally provide one or more module names to exclude from the update process.
         If more than one module name need to be excluded, pass in an array of strings.
         Supports '*' wildcard.
+
+        Required?                    false
+        Position?                    2
+        Default value                @()
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
 
     -IncludePreview [<SwitchParameter>]
         Preview versions for modules are not processed by default.
         Use this switch parameter to include preview versions in the update process.
         This checks for modules that have '-preview' in their Version attributes.
 
+        Required?                    false
+        Position?                    3
+        Default value                False
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
     -KeepVersions [<SwitchParameter>]
         If used this switch ensures the script will not uninstall older versions if a new version is found and
         installed.
 
+        Required?                    false
+        Position?                    4
+        Default value                False
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
     -ReportOnly [<SwitchParameter>]
         If used this switch ensures no modules are updated but available updates are reported.
+
+        Required?                    false
+        Position?                    5
+        Default value                False
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -WhatIf [<SwitchParameter>]
+
+        Required?                    false
+        Position?                    named
+        Default value
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+
+    -Confirm [<SwitchParameter>]
+
+        Required?                    false
+        Position?                    named
+        Default value
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
 
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
         ErrorAction, ErrorVariable, WarningAction, WarningVariable,
         OutBuffer, PipelineVariable, and OutVariable. For more information, see
         about_CommonParameters (https:/go.microsoft.com/fwlink/?LinkID=113216).
-
+        
 EXAMPLES
     -------------------------- EXAMPLE 1 --------------------------
     PS C:\>.\EvergreenModules.ps1
