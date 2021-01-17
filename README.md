@@ -169,12 +169,11 @@ A possible workaround could be (Google-fu, not tested):
 *  Re-install the uninstalled modules in the CurrentUser scope
 Note that this also changes the default location for your PowerShell profile.
 
-A possible workaround is also offered in another logged issue for the preview release of PowerShellGet (mentioned [here][error-cloudfileaccessdenied-beta]):
+Another possible workaround is offered in another logged issue for the preview release of PowerShellGet (mentioned [here][error-cloudfileaccessdenied-beta]):
 *  Uninstall all versions of PowerShellGet
 *  Install version 2.2.4.1 of PowerShellGet
 *  When you run this script use `-Exclude 'PowerShellGet'` to prevent automatically upgrading to the newer, bugged, versions
 
-Another workaround could be to uninstall CurrentUser scope modules and reinstall them in the AllUsers scope.
 
 [github-release-badge]: https://img.shields.io/github/release/msfreaks/EvergreenModules.svg?style=flat-square
 [github-release]: https://github.com/msfreaks/EvergreenModules/releases/latest
