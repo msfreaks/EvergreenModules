@@ -158,10 +158,15 @@ The error is thrown by PowerShellGet, an essential part of PowerShell module man
 
 More info on this bug [here][error-cloudfileaccessdenied].
 
+Workaround:
+*  Uninstall any modules is the CurrentUser scope
+*  Re-install the uninstalled modules in the AllUsers scope
+
 A possible workaround could be (Google-fu, not tested):
 *  Uninstall any modules in the CurrentUser scope
 *  Create a folder for CurrentUser scope modules outside of your OneDrive folder structure
 *  In the 'PSModulePath' environment variable change `C:\Users\<username>\OneDrive - <tenant name>\Documents\WindowsPowerShell\Modules;` to the folder you created
+*  Re-install the uninstalled modules in the CurrentUser scope
 Note that this also changes the default location for your PowerShell profile.
 
 A possible workaround is also offered in another logged issue for the preview release of PowerShellGet (mentioned [here][error-cloudfileaccessdenied-beta]):
