@@ -5,6 +5,15 @@
 *  Add -Scope parameter
 *  Check for Elevation
 
-## 2101.1
+## 2101.2
+
+*  Added Preview version logic
+*  Added parameter 'KeepVersions'
+*  Added 'KeepVersions' logic
+*  Fixed a bug where all versions would be uninstalled
+*  Fixed a sorting bug where version [System.String] needed to be sorted as [System.Version]
+*  Fixed a bug where on rare occasion an install would fail
+
+## 2101.1 (internal release)
 
 *  Initial Release

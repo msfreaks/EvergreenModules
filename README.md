@@ -106,9 +106,24 @@ EXAMPLES
 
 ## Notes
 
-If you get an error relating to PackageManagement or PowerShellGet, it's probably because of a known bug when using Known Folder Move with OneDrive (for Business) and thus moving your Documents folder to OneDrive, including the default location for Windows PowerShell modules in the CurrentUser scope.
+### Error: PackageManagement\Uninstall-Package : Access to the cloud file is denied
+If you're getting this error, it's probably because of a known bug when using Known Folder Move with OneDrive (for Business) and thus moving your Documents folder to OneDrive, including the default location for Windows PowerShell modules in the CurrentUser scope.
+The error is thrown by PowerShellGet, an essential part of PowerShell module management.
 
+More info on this bug [here][error-cloudfileaccessdenied].
 
+A possible workaround could be (Google-fu, not tested):
+*  Uninstall any modules in the CurrentUser scope
+*  Create a folder for CurrentUser scope modules outside of your OneDrive folder structure
+*  In the 'PSModulePath' environment variable change `C:\Users\<username>\OneDrive - <tenant name>\Documents\WindowsPowerShell\Modules;` to the folder you created
+Note that this also changes the default location for your PowerShell profile.
+
+A possible workaround is also offered in another logged issue for the preview release of PowerShellGet (mentioned [here][error-cloudfileaccessdenied-beta]):
+*  Uninstall all versions of PowerShellGet
+*  Install version 2.2.4.1 of PowerShellGet
+*  When you run this script use `-Exclude 'PowerShellGet'` to prevent automatically upgrading to the newer, bugged, versions
+
+Another workaround could be to uninstall CurrentUser scope modules and reinstall them in the AllUsers scope.
 
 [github-release-badge]: https://img.shields.io/github/release/msfreaks/EvergreenModules.svg?style=flat-square
 [github-release]: https://github.com/msfreaks/EvergreenModules/releases/latest
@@ -120,3 +135,5 @@ If you get an error relating to PackageManagement or PowerShellGet, it's probabl
 [twitter-follow]: https://twitter.com/menschab?ref_src=twsrc%5Etfw
 [change-log]: https://github.com/msfreaks/EvergreenModules/blob/main/CHANGELOG.md
 [poshgallery-evergreenmodules]: https://www.powershellgallery.com/packages/EvergreenModules/
+[error-cloudfileaccessdenied]: https://github.com/PowerShell/PowerShellGet/issues/262
+[error-cloudfileaccessdenied-beta]: https://github.com/PowerShell/PowerShellGet/issues/300

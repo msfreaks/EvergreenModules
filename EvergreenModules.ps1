@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 2101.1
+.VERSION 2101.2
 
 .GUID 0f309416-1337-43d0-93dd-f44988136fe8
 
@@ -70,12 +70,17 @@
  https://msfreaks.wordpress.com
 
 #>
+
+#Requires -Modules @{ ModuleName="PowerShellGet"; ModuleVersion="2.2.4.1" }
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false, Position = 0)]
-    [String[]] $Include,
+    [String[]] $Include = @(),
     [Parameter(Mandatory = $false, Position = 1)]
-    [String[]] $Exclude,
+    [String[]] $Exclude = @(),
     [Parameter(Mandatory = $false, Position = 2)]
     [switch] $IncludePreview,
     [Parameter(Mandatory = $false, Position = 3)]
@@ -83,6 +88,12 @@ param(
     [Parameter(Mandatory = $false, Position = 4)]
     [switch] $ReportOnly
 )
+
+Write-Verbose -Message ('Include:        {0}' -f ($Include -join ','))
+Write-Verbose -Message ('Exclude:        {0}' -f ($Exclude -join ','))
+Write-Verbose -Message ('IncludePreview: {0}' -f $IncludePreview)
+Write-Verbose -Message ('KeepVersions:   {0}' -f $KeepVersions)
+Write-Verbose -Message ('ReportOnly:     {0}' -f $ReportOnly)
 
 #region Functions
 
@@ -99,20 +110,40 @@ function Update-PowerShellModule {
     Write-Verbose -Message ('Online version: {0}' -f $ModuleOnline.Version)
     Write-Verbose -Message ('KeepVersions:   {0}' -f $KeepVersions)
     Write-Verbose -Message ('ReportOnly:     {0}' -f $ReportOnly)
-    
-    if ($Module[0].Version -eq $ModuleOnline.Version) {
-        Write-Host ('{0} - {1}: Newest version already installed.' -f $Module[0].Name, $Module[0].Version) -ForegroundColor Green
-    } else {
-        Write-Host ('{0} - {1}: Newer version available: {2}.' -f $Module[0].Name, $Module[0].Version, $ModuleOnline.Version) -ForegroundColor Cyan
-        if (-not $ReportOnly) {
-            Write-Host ('{0} - {1}: Updating to {2}' -f $Module[0].Name, $Module[0].Version, $ModuleOnline.Version) -ForegroundColor Cyan
-            Update-Module -Name $Module[0].Name -Force
-        }
+    $isPreview = $null
+    if ($Module[0].Version -like '*-preview') { $isPreview = ' (preview)' }
 
-        $Module | ForEach-Object {
-            if (-not $ReportOnly -and -not $KeepVersions) {
-                Write-Host ('{0} - {1}: Uninstalling {2}' -f $Module[0].Name, $ModuleOnline.Version, $Module[0].Version) -ForegroundColor Cyan
-                $_ | Uninstall-Module -Force
+    if ($Module[0].Version -eq $ModuleOnline.Version) {
+
+        Write-Host ('{0}{1}: Newest version already installed ({2}).' -f $Module[0].Name, $isPreview, $Module[0].Version) -ForegroundColor Green
+    } else {
+        Write-Host ('{0}{1}: Newer version available: {2} (Current version: {3}).' -f $Module[0].Name, $isPreview, $ModuleOnline.Version, $Module[0].Version) -ForegroundColor Cyan
+        if (-not $ReportOnly) {
+            Write-Host ('{0}{1}: Updating to version {2}' -f $Module[0].Name, $isPreview, $ModuleOnline.Version) -ForegroundColor Cyan
+            try {
+                if ($isPreview) {
+                    Update-Module -Name $Module[0].Name -AllowPrerelease -Force
+                } else {
+                    Update-Module -Name $Module[0].Name -Force
+                }
+            }
+            catch {
+                Write-Warning -Message ('{0}: Failed to update.' -f $Module[0].Name)
+                throw $_
+                break
+            }
+        }
+    }
+    if (-not $ReportOnly -and -not $KeepVersions) {
+        $Module | Where-Object { $_.Version -ne $ModuleOnline.Version } | ForEach-Object {
+            $current = $_
+            Write-Host ('{0}: Uninstalling version {1}' -f $current.Name, $current.Version) -ForegroundColor Cyan
+            try {
+                $current | Uninstall-Module -Force
+            }
+            catch {
+                Write-Warning -Message ('{0}: Failed to uninstall {1}.' -f $current.Name, $current.Version)
+                throw $_
             }
         }
     }
@@ -120,13 +151,17 @@ function Update-PowerShellModule {
 #endregion
 
 # build module array
-$modules = $null
+$modules = @()
 
 # process includes
 $Include | ForEach-Object { 
     $current = $_
     Write-Verbose -Message ('Including "{0}"' -f $current)
-    $modules += Get-InstalledModule | Where-Object { $_.Name -like $current }
+    if ($current -match '\*') {
+        Get-InstalledModule | Where-Object { $_.Name -like $current } | ForEach-Object { $modules += $_ }
+    } else {
+        $modules += Get-InstalledModule -Name $current
+    }
 }
 if (-not $modules) { $modules = Get-InstalledModule }
 
@@ -139,15 +174,16 @@ $Exclude | ForEach-Object {
 
 # process module array
 ($modules | Sort-Object Name) | ForEach-Object {
-    $module  = Get-InstalledModule -Name $_.Name -AllVersions | Where-Object { $_.Version -notlike '*-preview' } | Sort-Object Version -Descending
-    $moduleOnline  = Find-Module -Name $_.Name
+    $current = $_
+    $module  = Get-InstalledModule -Name $current.Name -AllVersions | Where-Object { $_.Version -notlike '*-preview' } | Sort-Object -Property @{ Expression = { [System.Version]$_.Version }; Descending = $true }
+    $moduleOnline  = Find-Module -Name $current.Name
 
     Update-PowerShellModule -Module $module -ModuleOnline $moduleOnline -KeepVersions:$KeepVersions -ReportOnly:$ReportOnly
 
     if ($IncludePreview) {
-        $preview = Get-InstalledModule -Name $_.Name -AllVersions | Where-Object { $_.Version -like '*-preview' } | Sort-Object Version -Descending
+        $preview = Get-InstalledModule -Name $current.Name -AllVersions | Where-Object { $_.Version -like '*-preview' } | Sort-Object -Property @{ Expression = { [System.Version]($_.Version.Replace('-preview', '')) }; Descending = $true }
         if ($preview) { 
-            $previewOnline = Find-Module -Name $_.Name -AllowPrerelease
+            $previewOnline = Find-Module -Name $current.Name -AllowPrerelease
 
             Update-PowerShellModule -Module $preview -ModuleOnline $previewOnline -KeepVersions:$KeepVersions -ReportOnly:$ReportOnly
         }
