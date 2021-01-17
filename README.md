@@ -127,9 +127,9 @@ Another workaround could be to uninstall CurrentUser scope modules and reinstall
 
 [github-release-badge]: https://img.shields.io/github/release/msfreaks/EvergreenModules.svg?style=flat-square
 [github-release]: https://github.com/msfreaks/EvergreenModules/releases/latest
-[code-quality-badge]: https://app.codacy.com/project/badge/Grade/c0efab02b66442399bb16b0493cdfbef?style=flat-square
+[code-quality-badge]: https://app.codacy.com/project/badge/Grade/2c802cd68a5d4768b05c928a24b15a1f?style=flat-square
 [code-quality]: https://www.codacy.com/gh/msfreaks/EvergreenModules/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=msfreaks/EvergreenModules&amp;utm_campaign=Badge_Grade
-[license-badge]: https://img.shields.io/github/license/msfreaks/EvergreenModules.svg?style=flat-square
+[license-badge]: https://img.shields.io/github/license/msfreaks/EvergreenModules?style=flat-square
 [license]: https://github.com/msfreaks/EvergreenModules/blob/master/LICENSE
 [twitter-follow-badge]: https://img.shields.io/twitter/follow/menschab?style=flat-square
 [twitter-follow]: https://twitter.com/menschab?ref_src=twsrc%5Etfw
