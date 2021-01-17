@@ -14,10 +14,6 @@
 
 .PROJECTURI https://github.com/msfreaks/EvergreenModules
 
-.DESCRIPTION
- Script to automatically update your installed PowerShell modules.
- Optionally keep old versions or process Preview versions.
-
 #> 
 
 <#
