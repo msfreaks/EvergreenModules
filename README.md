@@ -35,7 +35,7 @@ The above execution will keep all installed PowerShell modules up to date, inclu
 
 A sample .xml file that you can import in Task Scheduler is provided with this script.
 
-This script processes all the installed PowerShell modules by default. You can scope this using the Include and Exclude parameters to you liking.
+This script processes all the installed PowerShell modules by default. You can scope this using the Include and Exclude parameters to your liking.
 
 ```
 SYNTAX
