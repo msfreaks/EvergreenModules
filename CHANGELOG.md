@@ -5,6 +5,10 @@
 *  Add -Scope parameter
 *  Check for Elevation
 
+## 2101.4 (general release)
+
+*  Fixed a bug where on rare occasion an empty module object is processed
+
 ## 2101.3 (general release)
 
 *  Added ShouldProcess logic

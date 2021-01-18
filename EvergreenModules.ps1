@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 2101.3
+.VERSION 2101.4
 
 .GUID 0f309416-1337-43d0-93dd-f44988136fe8
 
@@ -96,7 +96,9 @@ Write-Verbose -Message ('ReportOnly:     {0}' -f $ReportOnly)
 function Update-PowerShellModule {
     [CmdletBinding(SupportsShouldProcess)]
     param(
+        [Parameter(Mandatory = $true)]
         [PSCustomObject[]] $Module,
+        [Parameter(Mandatory = $true)]
         [PSCustomObject] $ModuleOnline,
         [switch] $KeepVersions,
         [switch] $ReportOnly
@@ -179,12 +181,14 @@ $Exclude | ForEach-Object {
 ($modules | Sort-Object Name) | ForEach-Object {
     $current = $_
     $module  = Get-InstalledModule -Name $current.Name -AllVersions | Where-Object { $_.Version -notlike '*-preview' } | Sort-Object -Property @{ Expression = { [System.Version]$_.Version }; Descending = $true }
-    $moduleOnline  = Find-Module -Name $current.Name
+    if ($module) {
+        $moduleOnline  = Find-Module -Name $current.Name
 
-    Update-PowerShellModule -Module $module -ModuleOnline $moduleOnline -KeepVersions:$KeepVersions -ReportOnly:$ReportOnly
+        Update-PowerShellModule -Module $module -ModuleOnline $moduleOnline -KeepVersions:$KeepVersions -ReportOnly:$ReportOnly
+    }
 
     if ($IncludePreview) {
-        $preview = Get-InstalledModule -Name $current.Name -AllVersions | Where-Object { $_.Version -like '*-preview' } | Sort-Object -Property @{ Expression = { [System.Version]($_.Version.Replace('-preview', '')) }; Descending = $true }
+        $preview = Get-InstalledModule -Name $current.Name -AllVersions -AllowPrerelease | Where-Object { $_.Version -like '*-preview' } | Sort-Object -Property @{ Expression = { [System.Version]($_.Version.Replace('-preview', '')) }; Descending = $true }
         if ($preview) { 
             $previewOnline = Find-Module -Name $current.Name -AllowPrerelease
 
